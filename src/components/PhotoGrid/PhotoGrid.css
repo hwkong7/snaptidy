@@ -1,0 +1,8 @@
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 140px);
+  gap: 10px;
+  padding: 20px 0;
+  overflow-y: scroll;
+  max-height: 520px; /* Figma 높이에 맞춤 */
+}
