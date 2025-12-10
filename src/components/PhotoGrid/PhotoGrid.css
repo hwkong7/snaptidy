@@ -4,5 +4,5 @@
   gap: 10px;
   padding: 20px 0;
   overflow-y: scroll;
-  max-height: 520px; /* Figma 높이에 맞춤 */
+  max-height: 520px;
 }

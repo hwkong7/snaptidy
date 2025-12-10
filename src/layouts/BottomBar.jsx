@@ -1,3 +1,4 @@
+// src/layouts/BottomBar.jsx
 import "./BottomBar.css";
 
 export default function BottomBar({

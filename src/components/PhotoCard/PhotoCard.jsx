@@ -1,3 +1,4 @@
+// src/components/PhotoCard/PhotoCard.jsx
 import "./PhotoCard.css";
 
 export default function PhotoCard({ image, selected, onClick }) {

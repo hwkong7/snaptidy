@@ -1,3 +1,4 @@
+// src/components/PhotoGrid/PhotoGrid.jsx
 import PhotoCard from "../PhotoCard/PhotoCard";
 import "./PhotoGrid.css";
 
@@ -15,4 +16,3 @@ export default function PhotoGrid({ photos, onToggle }) {
     </div>
   );
 }
-

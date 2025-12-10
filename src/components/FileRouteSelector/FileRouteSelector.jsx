@@ -1,9 +1,10 @@
+// src/components/FileRouteSelector/FileRouteSelector.jsx
 import "./FileRouteSelector.css";
 
 export default function FileRouteSelector({
   routes,
   currentRoute,
-  onChangeRoute,
+  onChangeRoute
 }) {
   return (
     <select
@@ -16,7 +17,6 @@ export default function FileRouteSelector({
           {r}
         </option>
       ))}
-      <option value="휴지통">휴지통</option>
     </select>
   );
 }
