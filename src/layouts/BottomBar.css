@@ -5,20 +5,34 @@
   padding: 20px 40px;
   border-top: 1px solid #ddd;
   margin-top: 10px;
+  background: white;
 }
 
 .actions button {
-  margin-left: 20px;
-  padding: 8px 16px;
+  margin-left: 15px;
+  padding: 8px 14px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .folder {
   background: #ff88bb;
+  color: white;
+}
+
+.copy {
+  background: #74b9ff;
+  color: white;
+}
+
+.share {
+  background: #a29bfe;
+  color: white;
 }
 
 .delete {
-  background: #ff6b6b;
+  background: #ff7675;
+  color: white;
 }

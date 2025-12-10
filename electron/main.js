@@ -1,4 +1,5 @@
 // electron/main.js
+const process = require("process");
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("path");
 const fs = require("fs").promises;
@@ -126,5 +127,9 @@ ipcMain.handle("fs:showItem", async (event, filePath) => {
 });
 
 app.on("window-all-closed", () => {
-  app.quit();  // ← 창 닫으면 바로 완전 종료됨
+  // Electron을 종료
+  app.quit();
+
+  // ⭐ React 개발 서버까지 완전히 종료!
+  process.exit(0);
 });

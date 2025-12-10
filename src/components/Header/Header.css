@@ -1,20 +1,47 @@
+.header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+  gap: 15px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  margin-right: auto;
+}
+
+.back-btn {
+  font-size: 20px;
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
 .path-box {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: 8px;
+  background: #fafafa;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
 }
 
 .path {
   font-weight: bold;
   color: #333;
-  background: #f4f4f4;
-  padding: 4px 8px;
-  border-radius: 4px;
 }
 
 .change-btn {
   padding: 5px 10px;
-  border-radius: 6px;
   cursor: pointer;
+  background: #ff88bb;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
 }

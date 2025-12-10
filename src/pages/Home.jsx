@@ -16,25 +16,51 @@ export default function Home() {
   const [routes, setRoutes] = useState(BASE_ROUTES);
   const [currentRoute, setCurrentRoute] = useState("다운로드");
 
-  // 경로 매핑
+  // ⭐ 뒤로가기용 경로 히스토리
+  const [routeHistory, setRouteHistory] = useState([]);
+
+  // 경로 매핑: 이름 → 실제 OS 경로
   const [routePaths, setRoutePaths] = useState({});
-  // route → 사진 리스트
+
+  // 각 경로 → 이미지 리스트
   const [photosByRoute, setPhotosByRoute] = useState({});
 
-  // 모달 상태 (새 폴더)
+  // 새 폴더 모달 상태
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
   const fileInputRef = useRef(null);
-  const currentPhotos = photosByRoute[currentRoute] || [];
 
-  // 선택 개수
+  // ⭐ useMemo로 최적화
+  const currentPhotos = useMemo(
+    () => photosByRoute[currentRoute] || [],
+    [photosByRoute, currentRoute]
+  );
+
   const selectedCount = useMemo(
     () => currentPhotos.filter((p) => p.selected).length,
     [currentPhotos]
   );
 
-  // 파일 읽기 함수
+  // ⭐ 경로 이동 시 히스토리 저장 + 이동
+  const goToRoute = useCallback(
+    (newRoute) => {
+      if (newRoute === currentRoute) return;
+      setRouteHistory((prev) => [...prev, currentRoute]);
+      setCurrentRoute(newRoute);
+    },
+    [currentRoute]
+  );
+
+  // ⭐ 뒤로가기
+  const goBack = () => {
+    if (routeHistory.length === 0) return;
+    const last = routeHistory[routeHistory.length - 1];
+    setRouteHistory((prev) => prev.slice(0, prev.length - 1));
+    setCurrentRoute(last);
+  };
+
+  // OS 경로에서 파일 읽기
   const loadFilesFromRoute = useCallback(
     async (routeName) => {
       const dirPath = routePaths[routeName];
@@ -63,17 +89,16 @@ export default function Home() {
     [routePaths]
   );
 
-  // 앱 시작 시 OS 기본 폴더 경로 불러오기
+  // 앱 시작 시 Home, Picture, Download 경로 가져오기
   useEffect(() => {
     async function init() {
-      if (!window.electronAPI?.getDefaultFolders) return;
       const map = await window.electronAPI.getDefaultFolders();
       setRoutePaths(map);
     }
     init();
   }, []);
 
-  // routePaths 준비되면 사진도 읽기
+  // 경로 바뀔 때 사진 로드
   useEffect(() => {
     if (!routePaths[currentRoute]) return;
     loadFilesFromRoute(currentRoute);
@@ -89,56 +114,41 @@ export default function Home() {
     }));
   };
 
-  // ===== 전체 선택 =====
   const selectAll = () => {
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: (prev[currentRoute] || []).map((p) => ({
-        ...p,
-        selected: true
-      }))
+      [currentRoute]: prev[currentRoute].map((p) => ({ ...p, selected: true }))
     }));
   };
 
-  // ===== 선택 해제 =====
   const clearSelection = () => {
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: (prev[currentRoute] || []).map((p) => ({
-        ...p,
-        selected: false
-      }))
+      [currentRoute]: prev[currentRoute].map((p) => ({ ...p, selected: false }))
     }));
   };
 
-  // ===== 파일 휴지통 이동 =====
+  // ===== 휴지통 이동 =====
   const deleteSelected = async () => {
-    const toDelete = currentPhotos.filter((p) => p.selected);
-    if (!toDelete.length) return;
+    const selected = currentPhotos.filter((p) => p.selected);
+    if (!selected.length) return;
 
-    const ok = window.confirm(
-      `${toDelete.length}개 파일을 휴지통으로 이동할까요?`
-    );
+    const ok = window.confirm(`${selected.length}개 삭제할까요?`);
     if (!ok) return;
 
-    const paths = toDelete.filter((p) => p.path).map((p) => p.path);
+    const paths = selected.map((p) => p.path);
     await window.electronAPI.trashFiles(paths);
 
-    await loadFilesFromRoute(currentRoute);
+    loadFilesFromRoute(currentRoute);
   };
 
-  // ===== 새 폴더 버튼 클릭 → 모달 열기 =====
-  const handleCreateFolderClick = () => {
-    setIsFolderModalOpen(true);
-  };
+  // ===== 새 폴더 모달 열기 =====
+  const handleCreateFolderClick = () => setIsFolderModalOpen(true);
 
-  // ===== 모달에서 확인 누르면 폴더 생성 =====
+  // ===== 새 폴더 생성 =====
   const confirmCreateFolder = async () => {
     const name = newFolderName.trim();
-    if (!name) {
-      alert("폴더 이름을 입력하세요.");
-      return;
-    }
+    if (!name) return alert("폴더 이름을 입력하세요");
 
     const parentDir = routePaths[currentRoute];
 
@@ -148,57 +158,48 @@ export default function Home() {
       setRoutes((prev) => [...prev, name]);
       setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
       setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
-      //setCurrentRoute(name);
 
+      // 자동 이동 ❌
       setNewFolderName("");
       setIsFolderModalOpen(false);
     } catch (err) {
-      console.error(err);
-      alert("폴더 생성 중 오류가 발생했습니다.");
+      alert("폴더 생성 오류");
     }
   };
 
-  // ===== 이미지 업로드 =====
+  // ===== 파일 업로드 =====
   const handleUploadClick = () => fileInputRef.current?.click();
 
   const handleFileInput = (e) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const newPhotos = files.map((file) => ({
+    const newPhotos = files.map((f) => ({
       id: `${Date.now()}-${Math.random()}`,
-      name: file.name,
-      url: URL.createObjectURL(file),
+      name: f.name,
+      url: URL.createObjectURL(f),
       fromFs: false,
       selected: false
     }));
 
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: [...(prev[currentRoute] || []), ...newPhotos]
+      [currentRoute]: [...prev[currentRoute], ...newPhotos]
     }));
-
-    e.target.value = "";
   };
 
-  // ===== 경로 변경 버튼 =====
+  // ===== 경로 폴더 선택 =====
   const handleChooseFolder = async () => {
-    if (!window.electronAPI?.chooseFolder) {
-      alert("Electron API가 작동하지 않습니다.");
-      return;
-    }
-
     const newPath = await window.electronAPI.chooseFolder();
     if (!newPath) return;
 
-    const folderName = newPath.split("\\").pop();
-
-    setRoutes((prev) => [...prev, folderName]);
-    setRoutePaths((prev) => ({ ...prev, [folderName]: newPath }));
-    setPhotosByRoute((prev) => ({ ...prev, [folderName]: [] }));
-    setCurrentRoute(folderName);
+    const name = newPath.split("\\").pop();
+    setRoutes((prev) => [...prev, name]);
+    setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
+    goToRoute(name); // ⭐ 뒤로가기용 이동
   };
-  // ===== 복사 버튼 =====
+
+  // ===== 복사 =====
   const handleCopy = async () => {
     const selected = currentPhotos.filter((p) => p.selected);
     if (!selected.length) return alert("복사할 파일을 선택하세요.");
@@ -207,25 +208,24 @@ export default function Home() {
     if (!target) return;
 
     const paths = selected.map((p) => p.path);
-
     const ok = await window.electronAPI.copyFiles(paths, target);
-    if (ok) alert("복사 완료!");
-    else alert("복사 중 오류 발생");
+
+    alert(ok ? "복사 완료!" : "복사 실패");
   };
 
-  // ===== 공유 버튼 =====
+  // ===== 공유 =====
   const handleShare = () => {
     const selected = currentPhotos.filter((p) => p.selected);
-    if (!selected.length) return alert("공유할 파일을 선택하세요.");
-
-    // 사진 하나만 공유 표시
+    if (!selected.length) return alert("공유할 파일 선택하세요");
     window.electronAPI.showItem(selected[0].path);
   };
+
   return (
     <div>
       <Header
         currentRoutePath={routePaths[currentRoute]}
         onChooseFolder={handleChooseFolder}
+        onBack={goBack}
       />
 
       <PhotoGrid photos={currentPhotos} onToggle={toggleSelect} />
@@ -250,7 +250,7 @@ export default function Home() {
         onShare={handleShare}
       />
 
-      {/* ⭐ 새 폴더 모달 창 ⭐ */}
+      {/* 새 폴더 모달 */}
       {isFolderModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
