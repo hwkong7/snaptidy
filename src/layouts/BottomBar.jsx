@@ -7,7 +7,9 @@ export default function BottomBar({
   onClear,
   onDelete,
   onCreateFolder,
-  onUpload
+  onUpload,
+  onCopy,
+  onShare
 }) {
   return (
     <div className="bottom-bar">
@@ -23,6 +25,9 @@ export default function BottomBar({
           휴지통
         </button>
         <button onClick={onUpload}>업로드</button>
+        <button onClick={onCopy}>복사</button>
+        <button onClick={onShare}>공유</button>
+
       </div>
     </div>
   );

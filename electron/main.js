@@ -100,3 +100,31 @@ ipcMain.handle("fs:createFolder", async (event, { parentDir, name }) => {
   await fs.mkdir(newPath, { recursive: true });
   return newPath; // React 쪽에서 routePaths에 저장
 });
+
+// 선택한 파일들을 특정 폴더로 복사하기
+ipcMain.handle("fs:copyFiles", async (event, { files, targetDir }) => {
+  const fs = require("fs");
+  const path = require("path");
+
+  try {
+    for (const file of files) {
+      const filename = path.basename(file);
+      const dest = path.join(targetDir, filename);
+      fs.copyFileSync(file, dest);
+    }
+    return true;
+  } catch (err) {
+    console.error("copyFiles error:", err);
+    return false;
+  }
+});
+
+// 선택한 파일을 탐색기에서 열기
+ipcMain.handle("fs:showItem", async (event, filePath) => {
+  const { shell } = require("electron");
+  shell.showItemInFolder(filePath);  // 탐색기에서 파일 위치 열기
+});
+
+app.on("window-all-closed", () => {
+  app.quit();  // ← 창 닫으면 바로 완전 종료됨
+});

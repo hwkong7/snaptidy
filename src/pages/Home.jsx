@@ -16,13 +16,16 @@ export default function Home() {
   const [routes, setRoutes] = useState(BASE_ROUTES);
   const [currentRoute, setCurrentRoute] = useState("다운로드");
 
-  // 각 라우트 → 실제 OS 경로
+  // 경로 매핑
   const [routePaths, setRoutePaths] = useState({});
-  // 각 라우트 → 사진 리스트
+  // route → 사진 리스트
   const [photosByRoute, setPhotosByRoute] = useState({});
 
-  const fileInputRef = useRef(null);
+  // 모달 상태 (새 폴더)
+  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
 
+  const fileInputRef = useRef(null);
   const currentPhotos = photosByRoute[currentRoute] || [];
 
   // 선택 개수
@@ -31,13 +34,13 @@ export default function Home() {
     [currentPhotos]
   );
 
-  // 현재 라우트의 파일 목록을 OS에서 읽어와 상태에 반영
+  // 파일 읽기 함수
   const loadFilesFromRoute = useCallback(
     async (routeName) => {
       const dirPath = routePaths[routeName];
       if (!dirPath || !window.electronAPI?.readDir) return;
 
-      const files = await window.electronAPI.readDir(dirPath); // [{name, path}...]
+      const files = await window.electronAPI.readDir(dirPath);
 
       const fromFsPhotos = files.map((f) => ({
         id: f.path,
@@ -50,7 +53,6 @@ export default function Home() {
 
       setPhotosByRoute((prev) => {
         const existing = prev[routeName] || [];
-        // 기존 중에서 메모리(업로드)로만 존재하는 애들 유지
         const localOnly = existing.filter((p) => !p.fromFs);
         return {
           ...prev,
@@ -61,7 +63,7 @@ export default function Home() {
     [routePaths]
   );
 
-  // 처음 시작 시 기본 폴더 경로 가져오기
+  // 앱 시작 시 OS 기본 폴더 경로 불러오기
   useEffect(() => {
     async function init() {
       if (!window.electronAPI?.getDefaultFolders) return;
@@ -71,13 +73,13 @@ export default function Home() {
     init();
   }, []);
 
-  // routePaths 준비되거나, 현재 라우트 바뀔 때마다 동기화
+  // routePaths 준비되면 사진도 읽기
   useEffect(() => {
     if (!routePaths[currentRoute]) return;
     loadFilesFromRoute(currentRoute);
   }, [currentRoute, routePaths, loadFilesFromRoute]);
 
-  // ===== 선택 관련 =====
+  // ===== 선택 토글 =====
   const toggleSelect = (id) => {
     setPhotosByRoute((prev) => ({
       ...prev,
@@ -87,6 +89,7 @@ export default function Home() {
     }));
   };
 
+  // ===== 전체 선택 =====
   const selectAll = () => {
     setPhotosByRoute((prev) => ({
       ...prev,
@@ -97,6 +100,7 @@ export default function Home() {
     }));
   };
 
+  // ===== 선택 해제 =====
   const clearSelection = () => {
     setPhotosByRoute((prev) => ({
       ...prev,
@@ -107,69 +111,55 @@ export default function Home() {
     }));
   };
 
-  // ===== 진짜 휴지통으로 보내기 =====
+  // ===== 파일 휴지통 이동 =====
   const deleteSelected = async () => {
     const toDelete = currentPhotos.filter((p) => p.selected);
     if (!toDelete.length) return;
 
-    if (!window.electronAPI?.trashFiles) {
-      alert("OS 휴지통과 연동되지 않았습니다.");
-      return;
-    }
-
     const ok = window.confirm(
-      `${toDelete.length}개 파일을 실제 휴지통으로 이동할까요?`
+      `${toDelete.length}개 파일을 휴지통으로 이동할까요?`
     );
     if (!ok) return;
 
-    const paths = toDelete
-      .filter((p) => p.path) // 업로드로만 존재하는 애들은 건너뜀
-      .map((p) => p.path);
+    const paths = toDelete.filter((p) => p.path).map((p) => p.path);
+    await window.electronAPI.trashFiles(paths);
 
-    try {
-      await window.electronAPI.trashFiles(paths);
-      // 다시 읽어서 새로고침
-      await loadFilesFromRoute(currentRoute);
-    } catch (err) {
-      console.error(err);
-      alert("휴지통으로 이동하는 중 오류가 발생했습니다.");
-    }
+    await loadFilesFromRoute(currentRoute);
   };
 
-  // ===== 실제 새 폴더(앨범) 만들기 =====
-  const handleCreateFolder = async () => {
-    const name = prompt("새 앨범 이름을 입력하세요");
-    if (!name) return;
+  // ===== 새 폴더 버튼 클릭 → 모달 열기 =====
+  const handleCreateFolderClick = () => {
+    setIsFolderModalOpen(true);
+  };
 
-    if (routes.includes(name)) {
-      alert("이미 같은 이름의 앨범이 있습니다.");
+  // ===== 모달에서 확인 누르면 폴더 생성 =====
+  const confirmCreateFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name) {
+      alert("폴더 이름을 입력하세요.");
       return;
     }
 
     const parentDir = routePaths[currentRoute];
-    if (!parentDir || !window.electronAPI?.createFolder) {
-      alert("현재 경로에는 실제 폴더를 만들 수 없습니다.");
-      return;
-    }
 
     try {
       const newPath = await window.electronAPI.createFolder(parentDir, name);
-      // 라우트와 경로 매핑에 추가
+
       setRoutes((prev) => [...prev, name]);
       setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
       setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
-      setCurrentRoute(name);
+      //setCurrentRoute(name);
+
+      setNewFolderName("");
+      setIsFolderModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("폴더를 만드는 중 오류가 발생했습니다.");
+      alert("폴더 생성 중 오류가 발생했습니다.");
     }
   };
 
-  // ===== 업로드 (세션 동안만 존재하는 가짜 앨범 요소) =====
-  const handleUploadClick = () => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.click();
-  };
+  // ===== 이미지 업로드 =====
+  const handleUploadClick = () => fileInputRef.current?.click();
 
   const handleFileInput = (e) => {
     const files = Array.from(e.target.files || []);
@@ -191,27 +181,52 @@ export default function Home() {
     e.target.value = "";
   };
 
+  // ===== 경로 변경 버튼 =====
+  const handleChooseFolder = async () => {
+    if (!window.electronAPI?.chooseFolder) {
+      alert("Electron API가 작동하지 않습니다.");
+      return;
+    }
+
+    const newPath = await window.electronAPI.chooseFolder();
+    if (!newPath) return;
+
+    const folderName = newPath.split("\\").pop();
+
+    setRoutes((prev) => [...prev, folderName]);
+    setRoutePaths((prev) => ({ ...prev, [folderName]: newPath }));
+    setPhotosByRoute((prev) => ({ ...prev, [folderName]: [] }));
+    setCurrentRoute(folderName);
+  };
+  // ===== 복사 버튼 =====
+  const handleCopy = async () => {
+    const selected = currentPhotos.filter((p) => p.selected);
+    if (!selected.length) return alert("복사할 파일을 선택하세요.");
+
+    const target = await window.electronAPI.chooseFolder();
+    if (!target) return;
+
+    const paths = selected.map((p) => p.path);
+
+    const ok = await window.electronAPI.copyFiles(paths, target);
+    if (ok) alert("복사 완료!");
+    else alert("복사 중 오류 발생");
+  };
+
+  // ===== 공유 버튼 =====
+  const handleShare = () => {
+    const selected = currentPhotos.filter((p) => p.selected);
+    if (!selected.length) return alert("공유할 파일을 선택하세요.");
+
+    // 사진 하나만 공유 표시
+    window.electronAPI.showItem(selected[0].path);
+  };
   return (
     <div>
       <Header
         currentRoutePath={routePaths[currentRoute]}
-        onChooseFolder={async () => {
-          if (!window.electronAPI?.chooseFolder) {
-            alert("Electron API not available");
-            return;
-          }
-
-          const newPath = await window.electronAPI.chooseFolder();
-          if (!newPath) return;
-
-          const folderName = newPath.split("\\").pop();
-
-          setRoutes((prev) => [...prev, folderName]);
-          setRoutePaths((prev) => ({ ...prev, [folderName]: newPath }));
-          setCurrentRoute(folderName);
-        }}
+        onChooseFolder={handleChooseFolder}
       />
-
 
       <PhotoGrid photos={currentPhotos} onToggle={toggleSelect} />
 
@@ -229,9 +244,31 @@ export default function Home() {
         onSelectAll={selectAll}
         onClear={clearSelection}
         onDelete={deleteSelected}
-        onCreateFolder={handleCreateFolder}
+        onCreateFolder={handleCreateFolderClick}
         onUpload={handleUploadClick}
+        onCopy={handleCopy}
+        onShare={handleShare}
       />
+
+      {/* ⭐ 새 폴더 모달 창 ⭐ */}
+      {isFolderModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>새 폴더 생성</h3>
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="폴더 이름 입력"
+            />
+
+            <div className="modal-actions">
+              <button onClick={() => setIsFolderModalOpen(false)}>취소</button>
+              <button onClick={confirmCreateFolder}>생성</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
