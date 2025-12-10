@@ -126,6 +126,19 @@ ipcMain.handle("fs:showItem", async (event, filePath) => {
   shell.showItemInFolder(filePath);  // 탐색기에서 파일 위치 열기
 });
 
+// 선택한 파일을 공유 (Windows 11 공유 UI 사용)
+//const { exec } = require("child_process");
+ipcMain.handle("share:file", async (event, filePath) => {
+  const { exec } = require("child_process");
+  try {
+    exec(`start ms-photos:viewer?file=${filePath}`);
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+});
+
 app.on("window-all-closed", () => {
   // Electron을 종료
   app.quit();
@@ -133,3 +146,4 @@ app.on("window-all-closed", () => {
   // ⭐ React 개발 서버까지 완전히 종료!
   process.exit(0);
 });
+

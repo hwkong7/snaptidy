@@ -8,12 +8,13 @@ import React, {
 import Header from "../components/Header/Header";
 import PhotoGrid from "../components/PhotoGrid/PhotoGrid";
 import BottomBar from "../layouts/BottomBar";
+import SelectedPreviewBar from "../components/SelectedPreviewBar/SelectedPreviewBar";
 
 const BASE_ROUTES = ["바탕화면", "다운로드", "사진", "문서"];
 
 export default function Home() {
   const [routes, setRoutes] = useState(BASE_ROUTES);
-  const [currentRoute, setCurrentRoute] = useState("사진");
+  const [currentRoute, setCurrentRoute] = useState("다운로드");
 
   const [routePaths, setRoutePaths] = useState({});
   const [photosByRoute, setPhotosByRoute] = useState({});
@@ -181,12 +182,30 @@ export default function Home() {
     setCurrentRoute(name);
   };
 
+  // 선택된 사진들 미리보기 바
+  const selectedPhotos = currentPhotos.filter((p) => p.selected);
+
+  // 선택된 사진 미리보기에서 제거 
+  const removeSelected = (id) => {
+    setPhotosByRoute((prev) => ({
+      ...prev,
+      [currentRoute]: prev[currentRoute].map((p) =>
+        p.id === id ? { ...p, selected: false } : p
+      )
+    }));
+  };
+
   return (
     <div>
       <Header
         currentRoutePath={routePaths[currentRoute]}
         onChooseFolder={handleChooseFolder}
         onBack={goUpDirectory}
+      />
+
+      <SelectedPreviewBar
+        selectedPhotos={selectedPhotos}
+        onRemove={removeSelected}
       />
 
       <PhotoGrid photos={currentPhotos} onToggle={toggleSelect} />

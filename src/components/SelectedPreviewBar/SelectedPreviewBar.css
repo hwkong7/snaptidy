@@ -1,0 +1,39 @@
+.selected-preview-bar {
+    width: 100%;
+    padding: 8px 12px;
+    background: white;
+    border-bottom: 1px solid #ddd;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.preview-scroll {
+    display: flex;
+    gap: 8px;
+}
+
+.preview-item {
+    position: relative;
+}
+
+.preview-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.remove-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ff5555;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}

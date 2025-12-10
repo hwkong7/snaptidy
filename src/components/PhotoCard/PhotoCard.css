@@ -5,12 +5,12 @@
   border-radius: 8px;
   position: relative;
   cursor: pointer;
+  overflow: hidden;
+  /* 이미지 넘치지 않게 */
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.photo-card.selected {
-  background: #b5b5b5;
-}
-
+/* 기본 이미지 */
 .photo-card img {
   width: 100%;
   height: 100%;
@@ -18,13 +18,32 @@
   border-radius: 8px;
 }
 
+/* 선택됐을 때 카드 자체가 살짝 눌리는 느낌 */
+.photo-card.selected {
+  transform: scale(0.95);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+/* 선택됐을 때 회색 오버레이 */
+.photo-card.selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  /* 회색+반투명 */
+}
+
+/* 체크 아이콘 스타일 개선 */
 .check-icon {
   position: absolute;
   top: 6px;
   right: 6px;
   background: white;
   border-radius: 50%;
-  padding: 2px 5px;
+  padding: 4px 6px;
   font-size: 12px;
   border: 1px solid #999;
+  z-index: 2;
+  /* 오버레이보다 위 */
+  font-weight: bold;
 }
