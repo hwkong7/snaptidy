@@ -32,6 +32,13 @@ export default function Home() {
     [currentPhotos]
   );
 
+  // 파일 경로를 file:// URL로 변환
+  const toFileURL = (filePath) => {
+    const normalized = filePath.replace(/\\/g, "/");
+    const parts = normalized.split('/').map(encodeURIComponent);
+    return `file:///${parts.join('/')}`;
+  };
+
   // 상위 폴더 이동(cd ..)
   const goUpDirectory = () => {
     const currentPath = routePaths[currentRoute];
@@ -66,7 +73,7 @@ export default function Home() {
         id: f.path,
         name: f.name,
         path: f.path,
-        url: `file://${f.path}`,
+        url: toFileURL(f.path),
         fromFs: true,
         selected: false
       }));
