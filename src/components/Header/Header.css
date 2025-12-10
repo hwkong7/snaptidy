@@ -5,25 +5,18 @@
   padding: 12px 20px;
 }
 
-/* 한 줄 정렬 */
 .header-row {
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
+  min-width: 0;
 }
 
-/* 로고 */
-.logo {
-  font-size: 22px;
-  font-weight: bold;
-  margin-right: 8px;
-}
-
-/* 네비(뒤,앞) 버튼 */
-.nav-buttons {
-  display: flex;
-  gap: 6px;
+.logo-img {
+  height: 38px;
+  object-fit: contain;
+  user-select: none;
 }
 
 .nav-btn {
@@ -33,11 +26,6 @@
   border: 1px solid #ccc;
   background: #f4f4f4;
   cursor: pointer;
-}
-
-.nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
 }
 
 /* 경로 박스 */
@@ -51,19 +39,22 @@
   border-radius: 8px;
   font-size: 14px;
 
-  /* 경로가 길면 자동으로 늘어나도록 */
+  max-width: 45%;
+  min-width: 150px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
   flex-grow: 1;
 }
 
 .path {
   font-weight: bold;
   color: #333;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 경로 변경 버튼 */
 .change-btn {
   padding: 6px 12px;
   background: #ff88bb;

@@ -1,3 +1,4 @@
+// src/layouts/BottomBar.jsx
 import "./BottomBar.css";
 
 export default function BottomBar({
@@ -6,7 +7,6 @@ export default function BottomBar({
   onClear,
   onDelete,
   onCreateFolder,
-  onUpload,
   onCopy,
   onShare
 }) {
@@ -33,8 +33,6 @@ export default function BottomBar({
         <button className="delete" onClick={onDelete}>
           휴지통
         </button>
-
-        <button onClick={onUpload}>업로드</button>
       </div>
     </div>
   );

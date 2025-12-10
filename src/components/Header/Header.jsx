@@ -1,26 +1,23 @@
 // src/components/Header/Header.jsx
 import "./Header.css";
+import logoImg from "../../assets/images/logo.png";
 
 export default function Header({
   currentRoutePath,
   onChooseFolder,
-  onBack,
-  onForward
+  onBack
 }) {
   return (
     <header className="header">
-
-      {/* 로고 + 네비게이션 + 경로박스 한 줄 */}
       <div className="header-row">
 
-        {/* SnapTidy 로고 */}
-        <div className="logo">SnapTidy</div>
-
-        {/* 뒤로/앞으로 버튼 */}
-        <div className="nav-buttons">
-          <button className="nav-btn" onClick={onBack}>←</button>
-          <button className="nav-btn" onClick={onForward}>→</button>
+        {/* 로고 */}
+        <div className="logo">
+          <img src={logoImg} alt="SnapTidy Logo" className="logo-img" />
         </div>
+
+        {/* 뒤로가기 */}
+        <button className="nav-btn" onClick={onBack}>←</button>
 
         {/* 경로 표시 */}
         <div className="path-box">
@@ -30,7 +27,7 @@ export default function Header({
           </span>
         </div>
 
-        {/* 경로 변경 버튼 */}
+        {/* 경로 변경 */}
         <button className="change-btn" onClick={onChooseFolder}>
           경로 변경
         </button>
