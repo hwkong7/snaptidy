@@ -16,13 +16,8 @@ export default function Home() {
   const [routes, setRoutes] = useState(BASE_ROUTES);
   const [currentRoute, setCurrentRoute] = useState("다운로드");
 
-  // ⭐ 뒤로가기용 경로 히스토리
-  const [routeHistory, setRouteHistory] = useState([]);
-
-  // 경로 매핑: 이름 → 실제 OS 경로
+  // 실제 OS 경로 저장
   const [routePaths, setRoutePaths] = useState({});
-
-  // 각 경로 → 이미지 리스트
   const [photosByRoute, setPhotosByRoute] = useState({});
 
   // 새 폴더 모달 상태
@@ -31,7 +26,7 @@ export default function Home() {
 
   const fileInputRef = useRef(null);
 
-  // ⭐ useMemo로 최적화
+  // 현재 폴더의 사진 목록
   const currentPhotos = useMemo(
     () => photosByRoute[currentRoute] || [],
     [photosByRoute, currentRoute]
@@ -42,25 +37,42 @@ export default function Home() {
     [currentPhotos]
   );
 
-  // ⭐ 경로 이동 시 히스토리 저장 + 이동
-  const goToRoute = useCallback(
-    (newRoute) => {
-      if (newRoute === currentRoute) return;
-      setRouteHistory((prev) => [...prev, currentRoute]);
-      setCurrentRoute(newRoute);
-    },
-    [currentRoute]
-  );
+  // ⭐ cd .. 상위 디렉토리 이동 기능
+  const goUpDirectory = () => {
+    const currentPath = routePaths[currentRoute];
+    if (!currentPath) return;
 
-  // ⭐ 뒤로가기
-  const goBack = () => {
-    if (routeHistory.length === 0) return;
-    const last = routeHistory[routeHistory.length - 1];
-    setRouteHistory((prev) => prev.slice(0, prev.length - 1));
-    setCurrentRoute(last);
+    // 윈도우 경로 구분 문제 방지
+    const normalized = currentPath.replace(/\\/g, "/");
+
+    const parts = normalized.split("/");
+    if (parts.length <= 1) {
+      alert("상위 폴더가 없습니다.");
+      return;
+    }
+
+    // 상위 디렉토리 경로 만들기
+    const parentDir = parts.slice(0, -1).join("/");
+
+    const parentName = parentDir.split("/").pop();
+
+    // route 목록에 없으면 추가
+    setRoutes((prev) => {
+      if (!prev.includes(parentName)) return [...prev, parentName];
+      return prev;
+    });
+
+    // routePaths 에 상위 폴더 저장
+    setRoutePaths((prev) => ({
+      ...prev,
+      [parentName]: parentDir
+    }));
+
+    // 이동
+    setCurrentRoute(parentName);
   };
 
-  // OS 경로에서 파일 읽기
+  // 파일 읽기
   const loadFilesFromRoute = useCallback(
     async (routeName) => {
       const dirPath = routePaths[routeName];
@@ -68,7 +80,7 @@ export default function Home() {
 
       const files = await window.electronAPI.readDir(dirPath);
 
-      const fromFsPhotos = files.map((f) => ({
+      const fsPhotos = files.map((f) => ({
         id: f.path,
         name: f.name,
         path: f.path,
@@ -78,18 +90,17 @@ export default function Home() {
       }));
 
       setPhotosByRoute((prev) => {
-        const existing = prev[routeName] || [];
-        const localOnly = existing.filter((p) => !p.fromFs);
+        const existingLocal = prev[routeName]?.filter((p) => !p.fromFs) || [];
         return {
           ...prev,
-          [routeName]: [...fromFsPhotos, ...localOnly]
+          [routeName]: [...fsPhotos, ...existingLocal]
         };
       });
     },
     [routePaths]
   );
 
-  // 앱 시작 시 Home, Picture, Download 경로 가져오기
+  // OS 기본 폴더 경로 가져오기
   useEffect(() => {
     async function init() {
       const map = await window.electronAPI.getDefaultFolders();
@@ -98,17 +109,17 @@ export default function Home() {
     init();
   }, []);
 
-  // 경로 바뀔 때 사진 로드
+  // currentRoute 바뀌면 사진 다시 불러오기
   useEffect(() => {
     if (!routePaths[currentRoute]) return;
     loadFilesFromRoute(currentRoute);
   }, [currentRoute, routePaths, loadFilesFromRoute]);
 
-  // ===== 선택 토글 =====
+  // 선택 토글
   const toggleSelect = (id) => {
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: (prev[currentRoute] || []).map((p) =>
+      [currentRoute]: prev[currentRoute].map((p) =>
         p.id === id ? { ...p, selected: !p.selected } : p
       )
     }));
@@ -128,12 +139,12 @@ export default function Home() {
     }));
   };
 
-  // ===== 휴지통 이동 =====
+  // 휴지통 이동
   const deleteSelected = async () => {
     const selected = currentPhotos.filter((p) => p.selected);
-    if (!selected.length) return;
+    if (!selected.length) return alert("삭제할 파일을 선택하세요.");
 
-    const ok = window.confirm(`${selected.length}개 삭제할까요?`);
+    const ok = window.confirm(`${selected.length}개 파일을 휴지통으로 이동할까요?`);
     if (!ok) return;
 
     const paths = selected.map((p) => p.path);
@@ -142,64 +153,64 @@ export default function Home() {
     loadFilesFromRoute(currentRoute);
   };
 
-  // ===== 새 폴더 모달 열기 =====
-  const handleCreateFolderClick = () => setIsFolderModalOpen(true);
+  // 새 폴더 모달 열기
+  const handleCreateFolderClick = () => {
+    setIsFolderModalOpen(true);
+  };
 
-  // ===== 새 폴더 생성 =====
+  // 새 폴더 생성
   const confirmCreateFolder = async () => {
     const name = newFolderName.trim();
     if (!name) return alert("폴더 이름을 입력하세요");
 
     const parentDir = routePaths[currentRoute];
 
-    try {
-      const newPath = await window.electronAPI.createFolder(parentDir, name);
+    const newPath = await window.electronAPI.createFolder(parentDir, name);
 
-      setRoutes((prev) => [...prev, name]);
-      setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
-      setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
+    setRoutes((prev) => [...prev, name]);
+    setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
+    setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
 
-      // 자동 이동 ❌
-      setNewFolderName("");
-      setIsFolderModalOpen(false);
-    } catch (err) {
-      alert("폴더 생성 오류");
-    }
+    setNewFolderName("");
+    setIsFolderModalOpen(false);
   };
 
-  // ===== 파일 업로드 =====
+  // 파일 업로드
   const handleUploadClick = () => fileInputRef.current?.click();
 
   const handleFileInput = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const newPhotos = files.map((f) => ({
+    const uploaded = files.map((file) => ({
       id: `${Date.now()}-${Math.random()}`,
-      name: f.name,
-      url: URL.createObjectURL(f),
+      name: file.name,
+      url: URL.createObjectURL(file),
       fromFs: false,
       selected: false
     }));
 
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: [...prev[currentRoute], ...newPhotos]
+      [currentRoute]: [...prev[currentRoute], ...uploaded]
     }));
   };
 
-  // ===== 경로 폴더 선택 =====
+  // 경로 변경 버튼
   const handleChooseFolder = async () => {
     const newPath = await window.electronAPI.chooseFolder();
     if (!newPath) return;
 
-    const name = newPath.split("\\").pop();
-    setRoutes((prev) => [...prev, name]);
-    setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
-    goToRoute(name); // ⭐ 뒤로가기용 이동
+    const folderName = newPath.split("\\").pop();
+
+    setRoutes((prev) => [...prev, folderName]);
+    setRoutePaths((prev) => ({ ...prev, [folderName]: newPath }));
+    setPhotosByRoute((prev) => ({ ...prev, [folderName]: [] }));
+
+    setCurrentRoute(folderName);
   };
 
-  // ===== 복사 =====
+  // 복사
   const handleCopy = async () => {
     const selected = currentPhotos.filter((p) => p.selected);
     if (!selected.length) return alert("복사할 파일을 선택하세요.");
@@ -213,10 +224,10 @@ export default function Home() {
     alert(ok ? "복사 완료!" : "복사 실패");
   };
 
-  // ===== 공유 =====
+  // 공유 (탐색기에서 파일 열기)
   const handleShare = () => {
     const selected = currentPhotos.filter((p) => p.selected);
-    if (!selected.length) return alert("공유할 파일 선택하세요");
+    if (!selected.length) return alert("공유할 파일을 선택하세요.");
     window.electronAPI.showItem(selected[0].path);
   };
 
@@ -225,7 +236,7 @@ export default function Home() {
       <Header
         currentRoutePath={routePaths[currentRoute]}
         onChooseFolder={handleChooseFolder}
-        onBack={goBack}
+        onBack={goUpDirectory} // ⭐ cd .. 기능 실행
       />
 
       <PhotoGrid photos={currentPhotos} onToggle={toggleSelect} />
@@ -261,7 +272,6 @@ export default function Home() {
               onChange={(e) => setNewFolderName(e.target.value)}
               placeholder="폴더 이름 입력"
             />
-
             <div className="modal-actions">
               <button onClick={() => setIsFolderModalOpen(false)}>취소</button>
               <button onClick={confirmCreateFolder}>생성</button>

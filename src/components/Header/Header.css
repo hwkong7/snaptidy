@@ -1,47 +1,76 @@
 .header {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
+  width: 100%;
   border-bottom: 1px solid #ddd;
-  gap: 15px;
+  background: #fff;
+  padding: 12px 20px;
 }
 
+/* 한 줄 정렬 */
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+/* 로고 */
 .logo {
   font-size: 22px;
   font-weight: bold;
-  margin-right: auto;
+  margin-right: 8px;
 }
 
-.back-btn {
-  font-size: 20px;
-  padding: 4px 12px;
-  cursor: pointer;
+/* 네비(뒤,앞) 버튼 */
+.nav-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.nav-btn {
+  font-size: 18px;
+  padding: 4px 10px;
   border-radius: 6px;
-  background: #f0f0f0;
   border: 1px solid #ccc;
+  background: #f4f4f4;
+  cursor: pointer;
 }
 
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 경로 박스 */
 .path-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fafafa;
+  gap: 5px;
   padding: 6px 12px;
-  border-radius: 6px;
+  background: #fafafa;
   border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+
+  /* 경로가 길면 자동으로 늘어나도록 */
+  flex-grow: 1;
 }
 
 .path {
   font-weight: bold;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* 경로 변경 버튼 */
 .change-btn {
-  padding: 5px 10px;
-  cursor: pointer;
+  padding: 6px 12px;
   background: #ff88bb;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
   font-weight: bold;
+  cursor: pointer;
+  flex-shrink: 0;
 }
