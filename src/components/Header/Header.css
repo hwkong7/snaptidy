@@ -1,12 +1,20 @@
-.header {
+.path-box {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 0;
-  border-bottom: 1px solid #ddd;
+  gap: 10px;
+  font-size: 14px;
 }
 
-.logo {
-  font-size: 24px;
+.path {
   font-weight: bold;
+  color: #333;
+  background: #f4f4f4;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.change-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
 }

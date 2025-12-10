@@ -194,10 +194,24 @@ export default function Home() {
   return (
     <div>
       <Header
-        routes={routes}
-        currentRoute={currentRoute}
-        onChangeRoute={setCurrentRoute}
+        currentRoutePath={routePaths[currentRoute]}
+        onChooseFolder={async () => {
+          if (!window.electronAPI?.chooseFolder) {
+            alert("Electron API not available");
+            return;
+          }
+
+          const newPath = await window.electronAPI.chooseFolder();
+          if (!newPath) return;
+
+          const folderName = newPath.split("\\").pop();
+
+          setRoutes((prev) => [...prev, folderName]);
+          setRoutePaths((prev) => ({ ...prev, [folderName]: newPath }));
+          setCurrentRoute(folderName);
+        }}
       />
+
 
       <PhotoGrid photos={currentPhotos} onToggle={toggleSelect} />
 
