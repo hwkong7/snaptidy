@@ -1,8 +1,7 @@
-// src/components/PhotoGrid/PhotoGrid.jsx
 import PhotoCard from "../PhotoCard/PhotoCard";
 import "./PhotoGrid.css";
 
-export default function PhotoGrid({ photos, onToggle }) {
+export default function PhotoGrid({ photos, onToggle, onHover }) {
   return (
     <div className="photo-grid">
       {photos.map((p) => (
@@ -11,6 +10,7 @@ export default function PhotoGrid({ photos, onToggle }) {
           image={p.url}
           selected={p.selected}
           onClick={() => onToggle(p.id)}
+          onHover={onHover}   // ← 추가됨!!
         />
       ))}
     </div>

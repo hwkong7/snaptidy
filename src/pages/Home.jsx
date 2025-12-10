@@ -22,6 +22,9 @@ export default function Home() {
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
+  const [hoveredImage, setHoveredImage] = useState(null);
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+
   const currentPhotos = useMemo(
     () => photosByRoute[currentRoute] || [],
     [photosByRoute, currentRoute]
@@ -209,13 +212,22 @@ export default function Home() {
         onChooseFolder={handleChooseFolder}
         onBack={goUpDirectory}
       />
-
+      {/*이미지 호버 미리보기*/}
+      {hoveredImage && (
+        <div className="hover-preview">
+          <img src={hoveredImage} alt="preview" />
+        </div>
+      )}
       <SelectedPreviewBar
         selectedPhotos={selectedPhotos}
         onRemove={removeSelected}
       />
 
-      <PhotoGrid photos={currentPhotos} onToggle={toggleSelect} />
+      <PhotoGrid
+        photos={currentPhotos}
+        onToggle={toggleSelect}
+        onHover={setHoveredImage}
+      />
 
       <BottomBar
         count={selectedCount}
