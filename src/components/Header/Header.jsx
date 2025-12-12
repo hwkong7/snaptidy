@@ -6,9 +6,11 @@ export default function Header({
   currentRoutePath,
   onChooseFolder,
   onBack,
-  onNavigate
+  onForward,          // ⭐ 추가
+  onNavigate,
+  canGoBack,          // ⭐ 추가
+  canGoForward        // ⭐ 추가
 }) {
-  // 경로 분해
   const parts = currentRoutePath
     ? currentRoutePath.split("\\")
     : [];
@@ -22,8 +24,23 @@ export default function Header({
           <img src={logoImg} alt="SnapTidy Logo" className="logo-img" />
         </div>
 
-        {/* 뒤로가기 */}
-        <button className="nav-btn" onClick={onBack}>←</button>
+        {/* 뒤로 */}
+        <button
+          className="nav-btn"
+          onClick={onBack}
+          disabled={!canGoBack}
+        >
+          ←
+        </button>
+
+        {/* 앞으로 */}
+        <button
+          className="nav-btn"
+          onClick={onForward}
+          disabled={!canGoForward}
+        >
+          →
+        </button>
 
         {/* 경로 breadcrumb */}
         <div className="path-box">
@@ -41,7 +58,9 @@ export default function Header({
                   >
                     {part}
                   </button>
-                  {idx < parts.length - 1 && <span className="sep">›</span>}
+                  {idx < parts.length - 1 && (
+                    <span className="sep">›</span>
+                  )}
                 </span>
               );
             })}
