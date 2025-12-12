@@ -147,3 +147,10 @@ app.on("window-all-closed", () => {
   process.exit(0);
 });
 
+if (isDev) {
+  win.loadURL("http://localhost:3000");
+} else {
+  win.loadFile(
+    path.resolve(__dirname, "..", "build", "index.html")
+  );
+}
