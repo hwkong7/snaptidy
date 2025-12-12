@@ -39,28 +39,49 @@ code {
   gap: 10px;
 }
 
-.hover-preview {
-  position: fixed;
-  width: 260px;
-  height: 260px;
-  background: rgba(255, 255, 255, 0.95);
-  /* 흰색 배경 */
-  padding: 10px;
-  border-radius: 12px;
-  z-index: 2000;
-  pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  /* 은은한 그림자 */
-  backdrop-filter: blur(4px);
-  /* 약간 유리처럼 고급스럽게 */
-  border: 1px solid rgba(200, 200, 200, 0.4);
-  /* 얇은 회색 테두리 */
+/* 전체 페이지 */
+.home-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.hover-preview img {
-  width: 100%;
-  height: 100%;
+/* Header 아래 영역 */
+.content-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  /* 오른쪽 고정 */
+  overflow: hidden;
+}
+
+/* 왼쪽 사진 영역 */
+.grid-area {
+  overflow-y: auto;
+}
+
+/* 오른쪽 미리보기 영역 */
+.preview-area {
+  border-left: 1px solid #e5e5e5;
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px;
+}
+
+/* 미리보기 이미지 */
+.preview-area img {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
   border-radius: 8px;
-  /* 이미지도 아주 살짝 둥글게 */
+}
+
+/* 미리보기 없을 때 */
+.preview-empty {
+  color: #aaa;
+  font-size: 14px;
 }

@@ -23,8 +23,10 @@ export default function Home() {
   const [newFolderName, setNewFolderName] = useState("");
 
   const [hoveredImage, setHoveredImage] = useState(null);
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
 
+  /* =========================
+     현재 사진 / 선택 개수
+  ========================= */
   const currentPhotos = useMemo(
     () => photosByRoute[currentRoute] || [],
     [photosByRoute, currentRoute]
@@ -35,36 +37,46 @@ export default function Home() {
     [currentPhotos]
   );
 
-  // 파일 경로를 file:// URL로 변환
+  /* =========================
+     file:// URL 생성
+  ========================= */
   const toFileURL = (filePath) => {
     const normalized = filePath.replace(/\\/g, "/");
-    const parts = normalized.split('/').map(encodeURIComponent);
-    return `file:///${parts.join('/')}`;
+    const parts = normalized.split("/").map(encodeURIComponent);
+    return `file:///${parts.join("/")}`;
   };
 
-  // 상위 폴더 이동(cd ..)
+  /* =========================
+     breadcrumb 클릭 → 해당 경로로 이동
+  ========================= */
+  const navigateToPath = async (path) => {
+    if (!path) return;
+
+    const name = path.split("\\").pop();
+
+    setRoutes((prev) => [...new Set([...prev, name])]);
+    setRoutePaths((prev) => ({ ...prev, [name]: path }));
+    setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
+    setCurrentRoute(name);
+  };
+
+  /* =========================
+     상위 폴더 이동 (← 버튼)
+  ========================= */
   const goUpDirectory = () => {
     const currentPath = routePaths[currentRoute];
     if (!currentPath) return;
 
-    const normalized = currentPath.replace(/\\/g, "/");
-    const parts = normalized.split("/");
+    const parts = currentPath.split("\\");
     if (parts.length <= 1) return;
 
-    const parentDir = parts.slice(0, -1).join("/");
-    const parentName = parentDir.split("/").pop();
-
-    setRoutes((prev) => [...new Set([...prev, parentName])]);
-
-    setRoutePaths((prev) => ({
-      ...prev,
-      [parentName]: parentDir
-    }));
-
-    setCurrentRoute(parentName);
+    const parentPath = parts.slice(0, -1).join("\\");
+    navigateToPath(parentPath);
   };
 
-  // 실제 폴더에서 파일 읽기
+  /* =========================
+     폴더 내 파일 읽기
+  ========================= */
   const loadFilesFromRoute = useCallback(
     async (routeName) => {
       const dirPath = routePaths[routeName];
@@ -89,7 +101,9 @@ export default function Home() {
     [routePaths]
   );
 
-  // 기본 폴더 가져오기
+  /* =========================
+     초기 기본 폴더
+  ========================= */
   useEffect(() => {
     async function init() {
       const map = await window.electronAPI.getDefaultFolders();
@@ -99,10 +113,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (routePaths[currentRoute]) loadFilesFromRoute(currentRoute);
+    if (routePaths[currentRoute]) {
+      loadFilesFromRoute(currentRoute);
+    }
   }, [currentRoute, routePaths, loadFilesFromRoute]);
 
-  // 선택 토글
+  /* =========================
+     선택 관련
+  ========================= */
   const toggleSelect = (id) => {
     setPhotosByRoute((prev) => ({
       ...prev,
@@ -115,18 +133,26 @@ export default function Home() {
   const selectAll = () => {
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: prev[currentRoute].map((p) => ({ ...p, selected: true }))
+      [currentRoute]: prev[currentRoute].map((p) => ({
+        ...p,
+        selected: true
+      }))
     }));
   };
 
   const clearSelection = () => {
     setPhotosByRoute((prev) => ({
       ...prev,
-      [currentRoute]: prev[currentRoute].map((p) => ({ ...p, selected: false }))
+      [currentRoute]: prev[currentRoute].map((p) => ({
+        ...p,
+        selected: false
+      }))
     }));
   };
 
-  // 삭제 (휴지통)
+  /* =========================
+     삭제 / 복사 / 공유
+  ========================= */
   const deleteSelected = async () => {
     const toDelete = currentPhotos.filter((p) => p.selected);
     if (!toDelete.length) return;
@@ -134,28 +160,10 @@ export default function Home() {
     const ok = window.confirm(`${toDelete.length}개 파일을 휴지통으로 이동할까요?`);
     if (!ok) return;
 
-    const paths = toDelete.map((p) => p.path);
-    await window.electronAPI.trashFiles(paths);
+    await window.electronAPI.trashFiles(toDelete.map((p) => p.path));
     loadFilesFromRoute(currentRoute);
   };
 
-  // 새 폴더
-  const confirmCreateFolder = async () => {
-    const name = newFolderName.trim();
-    if (!name) return;
-
-    const parentDir = routePaths[currentRoute];
-    const newPath = await window.electronAPI.createFolder(parentDir, name);
-
-    setRoutes((prev) => [...prev, name]);
-    setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
-    setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
-
-    setIsFolderModalOpen(false);
-    setNewFolderName("");
-  };
-
-  // 복사
   const handleCopy = async () => {
     const selected = currentPhotos.filter((p) => p.selected);
     if (!selected.length) return;
@@ -163,39 +171,47 @@ export default function Home() {
     const target = await window.electronAPI.chooseFolder();
     if (!target) return;
 
-    const ok = await window.electronAPI.copyFiles(
+    await window.electronAPI.copyFiles(
       selected.map((p) => p.path),
       target
     );
 
-    alert(ok ? "복사 완료!" : "복사 실패");
+    alert("복사 완료!");
   };
 
-  // 공유
   const handleShare = () => {
     const selected = currentPhotos.filter((p) => p.selected);
     if (!selected.length) return;
     window.electronAPI.showItem(selected[0].path);
   };
 
-  // 경로 변경
+  /* =========================
+     폴더 생성 / 경로 선택
+  ========================= */
+  const confirmCreateFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name) return;
+
+    const parentDir = routePaths[currentRoute];
+    const newPath = await window.electronAPI.createFolder(parentDir, name);
+
+    navigateToPath(newPath);
+
+    setIsFolderModalOpen(false);
+    setNewFolderName("");
+  };
+
   const handleChooseFolder = async () => {
     const newPath = await window.electronAPI.chooseFolder();
     if (!newPath) return;
-
-    const name = newPath.split("\\").pop();
-
-    setRoutes((prev) => [...prev, name]);
-    setRoutePaths((prev) => ({ ...prev, [name]: newPath }));
-    setPhotosByRoute((prev) => ({ ...prev, [name]: [] }));
-
-    setCurrentRoute(name);
+    navigateToPath(newPath);
   };
 
-  // 선택된 사진들 미리보기 바
+  /* =========================
+     선택 미리보기
+  ========================= */
   const selectedPhotos = currentPhotos.filter((p) => p.selected);
 
-  // 선택된 사진 미리보기에서 제거 
   const removeSelected = (id) => {
     setPhotosByRoute((prev) => ({
       ...prev,
@@ -205,28 +221,39 @@ export default function Home() {
     }));
   };
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
-    <div>
+    <div className="home-page">
       <Header
         currentRoutePath={routePaths[currentRoute]}
         onChooseFolder={handleChooseFolder}
         onBack={goUpDirectory}
+        onNavigate={navigateToPath}
       />
-      {/*이미지 호버 미리보기*/}
-      {hoveredImage && (
-        <div className="hover-preview">
-          <img src={hoveredImage} alt="preview" />
+
+      <div className="content-layout">
+        <div className="grid-area">
+          <PhotoGrid
+            photos={currentPhotos}
+            onToggle={toggleSelect}
+            onHover={setHoveredImage}
+          />
         </div>
-      )}
+
+        <div className="preview-area">
+          {hoveredImage ? (
+            <img src={hoveredImage} alt="preview" />
+          ) : (
+            <div className="preview-empty">미리보기 없음</div>
+          )}
+        </div>
+      </div>
+
       <SelectedPreviewBar
         selectedPhotos={selectedPhotos}
         onRemove={removeSelected}
-      />
-
-      <PhotoGrid
-        photos={currentPhotos}
-        onToggle={toggleSelect}
-        onHover={setHoveredImage}
       />
 
       <BottomBar
@@ -239,7 +266,6 @@ export default function Home() {
         onShare={handleShare}
       />
 
-      {/* 새 폴더 모달 */}
       {isFolderModalOpen && (
         <div className="modal-overlay">
           <div className="modal">

@@ -1,6 +1,5 @@
 // electron/preload.js
-// electron/preload.js
-const { contextBridge, ipcRenderer } = require("electron");
+const { contextBridge, ipcRenderer, shell } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
   getDefaultFolders: () => ipcRenderer.invoke("fs:getDefaultFolders"),
@@ -13,5 +12,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("fs:copyFiles", { files, targetDir }),
   showItem: (filePath) =>
     ipcRenderer.invoke("fs:showItem", filePath),
-  shareFile: (path) => ipcRenderer.invoke("share:file", path)
+  shareFile: (path) => ipcRenderer.invoke("share:file", path),
+  openFolder: (path) => shell.showItemInFolder(path)
 });

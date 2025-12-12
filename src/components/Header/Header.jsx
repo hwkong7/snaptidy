@@ -5,8 +5,14 @@ import logoImg from "../../assets/images/logo.png";
 export default function Header({
   currentRoutePath,
   onChooseFolder,
-  onBack
+  onBack,
+  onNavigate
 }) {
+  // 경로 분해
+  const parts = currentRoutePath
+    ? currentRoutePath.split("\\")
+    : [];
+
   return (
     <header className="header">
       <div className="header-row">
@@ -19,12 +25,27 @@ export default function Header({
         {/* 뒤로가기 */}
         <button className="nav-btn" onClick={onBack}>←</button>
 
-        {/* 경로 표시 */}
+        {/* 경로 breadcrumb */}
         <div className="path-box">
           <span className="label">📂 현재 경로:</span>
-          <span className="path">
-            {currentRoutePath || "경로 없음"}
-          </span>
+
+          <div className="breadcrumb">
+            {parts.map((part, idx) => {
+              const fullPath = parts.slice(0, idx + 1).join("\\");
+
+              return (
+                <span key={idx} className="breadcrumb-item">
+                  <button
+                    className="breadcrumb-btn"
+                    onClick={() => onNavigate(fullPath)}
+                  >
+                    {part}
+                  </button>
+                  {idx < parts.length - 1 && <span className="sep">›</span>}
+                </span>
+              );
+            })}
+          </div>
         </div>
 
         {/* 경로 변경 */}
