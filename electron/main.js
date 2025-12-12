@@ -146,11 +146,3 @@ app.on("window-all-closed", () => {
   // ⭐ React 개발 서버까지 완전히 종료!
   process.exit(0);
 });
-
-if (isDev) {
-  win.loadURL("http://localhost:3000");
-} else {
-  win.loadFile(
-    path.resolve(__dirname, "..", "build", "index.html")
-  );
-}
