@@ -1,38 +1,55 @@
 .bottom-bar {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 12px 20px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
-  border-top: 1px solid #ddd;
-  margin-top: 10px;
-  background: white;
 }
 
-.actions button {
-  margin-left: 15px;
-  padding: 8px 14px;
-  border-radius: 6px;
+.bottom-left {
+  font-size: 14px;
+  color: #666;
+}
+
+.bottom-actions {
+  display: flex;
+  gap: 24px;
+}
+
+/* 아이콘 + 텍스트 버튼 */
+.action-btn {
+  background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 64px;
 }
 
-.folder {
-  background: #ff88bb;
-  color: white;
+.action-btn img {
+  width: 28px;
+  height: 28px;
 }
 
-.copy {
-  background: #74b9ff;
-  color: white;
+.action-btn span {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #333;
 }
 
-.share {
-  background: #a29bfe;
-  color: white;
+/* hover 효과 */
+.action-btn:hover span {
+  font-weight: 600;
 }
 
-.delete {
-  background: #ff7675;
-  color: white;
+/* 휴지통 강조 */
+.action-btn.danger span {
+  color: #e04b4b;
 }

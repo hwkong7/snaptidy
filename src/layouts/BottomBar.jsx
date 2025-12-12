@@ -1,39 +1,60 @@
-// src/layouts/BottomBar.jsx
 import "./BottomBar.css";
+
+import newFolderIcon from "../assets/icons/new_folder_icon.svg";
+import copyIcon from "../assets/icons/copy_icon.svg";
+import shareIcon from "../assets/icons/share_icon.svg";
+import trashIcon from "../assets/icons/trash_icon.svg";
 
 export default function BottomBar({
   count,
   onSelectAll,
   onClear,
-  onDelete,
   onCreateFolder,
   onCopy,
-  onShare
+  onShare,
+  onDelete
 }) {
   return (
     <div className="bottom-bar">
-      <div className="count">{count}개 선택됨</div>
+      <div className="bottom-left">
+        {count}개 선택됨
+      </div>
 
-      <div className="actions">
-        <button onClick={onSelectAll}>전체 선택</button>
-        <button onClick={onClear}>선택 해제</button>
-
-        <button className="folder" onClick={onCreateFolder}>
-          새 폴더
-        </button>
-
-        <button className="copy" onClick={onCopy}>
-          복사
-        </button>
-
-        <button className="share" onClick={onShare}>
-          공유
-        </button>
-
-        <button className="delete" onClick={onDelete}>
-          휴지통
-        </button>
+      <div className="bottom-actions">
+        <ActionButton
+          icon={newFolderIcon}
+          label="새 폴더"
+          onClick={onCreateFolder}
+        />
+        <ActionButton
+          icon={copyIcon}
+          label="복사"
+          onClick={onCopy}
+        />
+        <ActionButton
+          icon={shareIcon}
+          label="공유"
+          onClick={onShare}
+        />
+        <ActionButton
+          icon={trashIcon}
+          label="휴지통"
+          danger
+          onClick={onDelete}
+        />
       </div>
     </div>
+  );
+}
+
+function ActionButton({ icon, label, onClick, danger }) {
+  return (
+    <button
+      className={`action-btn ${danger ? "danger" : ""}`}
+      onClick={onClick}
+    >
+      <img src={icon} alt={label} />
+      <span>{label}</span>
+    </button>
   );
 }
