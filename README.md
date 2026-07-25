@@ -1,78 +1,75 @@
-# Fimga로 UI/UX 초안
-<img width="1448" height="1032" alt="Frame 1" src="https://github.com/user-attachments/assets/8c2f9b7f-4314-4823-9256-f4862f85baf3" />
-<img width="296" height="191" alt="file_route_selection" src="https://github.com/user-attachments/assets/13ecf645-3177-4a1b-8ac1-7ae8df7d3d98" />
+﻿# SnapTidy
 
-# 실제 개발 화면
+SnapTidy는 사진 정리 및 선택 흐름을 돕는 React 기반 UI 프로젝트입니다. 로컬 실행, 프로덕션 빌드, Vercel 배포까지 한 번에 확인할 수 있도록 정리한 문서입니다.
+
+## 프로젝트 소개
+- React + Create React App 기반
+- Electron 앱 구조도 함께 포함되어 있음
+- 웹 화면으로도 실행 가능하며, Vercel로 배포 가능
+
+## 화면 미리보기
+<img width="1448" height="1032" alt="Frame 1" src="https://github.com/user-attachments/assets/8c2f9b7f-4314-4823-9256-f4862f85baf3" />
+
+<img width="296" height="191" alt="file_route_selection" src="https://github.com/user-attachments/assets/13ecf645-f4862f85baf3" />
+
 <img width="995" height="577" alt="image" src="https://github.com/user-attachments/assets/e4d6c4f3-f676-49a8-935a-f9ef5860c9a3" />
 
+## 로컬 실행
 
-# Getting Started with Create React App
+### 1) 의존성 설치
+```bash
+npm install
+```
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### 2) 개발 서버 실행
+```bash
+npm start
+```
 
-## Available Scripts
+브라우저에서 다음 주소로 접속합니다.
+- http://localhost:3000
 
-In the project directory, you can run:
+## 프로덕션 빌드
 
-### `npm start`
+```bash
+npm run build
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+빌드 결과는 `build/` 폴더에 생성됩니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Vercel 배포
 
-### `npm test`
+이 프로젝트는 React 웹 앱으로 Vercel에 배포할 수 있습니다.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 배포 순서
+1. GitHub 저장소에 프로젝트를 업로드합니다.
+2. Vercel 대시보드에서 New Project를 선택합니다.
+3. 저장소를 연결합니다.
+4. 프로젝트를 선택하고 Deploy 합니다.
 
-### `npm run build`
+### 주의사항
+- Vercel 배포는 웹 UI 기준입니다.
+- Electron 데스크톱 앱 기능은 Vercel에서 직접 실행되지 않을 수 있습니다.
+- SPA 라우팅을 위해 [vercel.json](vercel.json) 파일을 포함했습니다.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 프로젝트 구조
+```text
+src/
+  components/
+  layouts/
+  pages/
+  assets/
+  App.js
+  index.js
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 기술 스택
+- React 19
+- Create React App
+- Electron
+- CSS
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 참고
+- React: https://reactjs.org/
+- Create React App: https://create-react-app.dev/
+- Vercel: https://vercel.com/
