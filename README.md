@@ -1,6 +1,9 @@
-
+# Fimga로 UI/UX 초안
 <img width="1448" height="1032" alt="Frame 1" src="https://github.com/user-attachments/assets/8c2f9b7f-4314-4823-9256-f4862f85baf3" />
 <img width="296" height="191" alt="file_route_selection" src="https://github.com/user-attachments/assets/13ecf645-3177-4a1b-8ac1-7ae8df7d3d98" />
+
+# 실제 개발 화면
+<img width="995" height="577" alt="image" src="https://github.com/user-attachments/assets/e4d6c4f3-f676-49a8-935a-f9ef5860c9a3" />
 
 
 # Getting Started with Create React App
