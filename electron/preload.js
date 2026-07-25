@@ -1,6 +1,5 @@
 // electron/preload.js
 const { contextBridge, ipcRenderer, shell } = require("electron");
-
 contextBridge.exposeInMainWorld("electronAPI", {
   getDefaultFolders: () => ipcRenderer.invoke("fs:getDefaultFolders"),
   chooseFolder: () => ipcRenderer.invoke("fs:chooseFolder"),
@@ -8,6 +7,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   trashFiles: (paths) => ipcRenderer.invoke("fs:trashFiles", paths),
   createFolder: (parentDir, name) =>
     ipcRenderer.invoke("fs:createFolder", { parentDir, name }),
+  moveFiles: (files, targetDir) =>
+    ipcRenderer.invoke("fs:moveFiles", { files, targetDir }),
   copyFiles: (files, targetDir) =>
     ipcRenderer.invoke("fs:copyFiles", { files, targetDir }),
   showItem: (filePath) =>

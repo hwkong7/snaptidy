@@ -86,7 +86,7 @@ ipcMain.handle("fs:trashFiles", async (event, paths) => {
   if (!Array.isArray(paths)) return;
   for (const p of paths) {
     try {
-      await shell.trashItem(p); // ← 진짜 윈도우 휴지통으로 이동
+      await shell.trashItem(p); // 진짜 윈도우 휴지통으로 이동
     } catch (err) {
       console.error("trashItem error:", err);
     }
@@ -125,7 +125,21 @@ ipcMain.handle("fs:showItem", async (event, filePath) => {
   const { shell } = require("electron");
   shell.showItemInFolder(filePath);  // 탐색기에서 파일 위치 열기
 });
+// 선택한 파일들을 특정 폴더로 이동하기
+ipcMain.handle("fs:moveFiles", async (event, { files, targetDir }) => {
+  try {
+    for (const file of files) {
+      const filename = path.basename(file);
+      const dest = path.join(targetDir, filename);
 
+      await fs.rename(file, dest); // ⭐ 진짜 이동
+    }
+    return true;
+  } catch (err) {
+    console.error("moveFiles error:", err);
+    return false;
+  }
+});
 // 선택한 파일을 공유 (Windows 11 공유 UI 사용)
 //const { exec } = require("child_process");
 ipcMain.handle("share:file", async (event, filePath) => {

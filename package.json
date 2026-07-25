@@ -23,6 +23,9 @@
   "build": {
     "appId": "com.snaptidy.app",
     "productName": "SnapTidy",
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
     "directories": {
       "output": "dist"
     },
@@ -32,8 +35,7 @@
       "package.json"
     ],
     "win": {
-      "target": "nsis",
-      "icon": "public/icon.ico"
+      "target": "nsis"
     }
   },
   "browserslist": {
