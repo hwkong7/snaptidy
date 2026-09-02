@@ -163,22 +163,31 @@
 
 /* ── 툴바 ── */
 .st-toolbar {
-  height: var(--toolbar-h);
+  min-height: var(--toolbar-h);
   background: #fff;
   border-bottom: 1px solid var(--gray-200);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
-  gap: 12px;
+  padding: 6px 18px;
+  gap: 10px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
-.st-toolbar-left,
+.st-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
 .st-toolbar-right {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .st-nav-btn {
