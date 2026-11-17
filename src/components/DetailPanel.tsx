@@ -25,7 +25,7 @@ export function DetailPanel({ photo, isChecked, onToggle, onShowItem }: DetailPa
       {photo ? (
         <>
           <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-slate-100">
-            <img src={photo.url} alt={photo.name} className="block size-full object-cover" />
+            <img src={photo.url} alt={photo.name} className="block size-full object-cover text-[0px]" />
           </div>
           <div className="flex flex-1 flex-col gap-3.5 overflow-y-auto p-4">
             <h3 className="text-[13.5px] leading-snug font-bold break-all">{photo.name}</h3>

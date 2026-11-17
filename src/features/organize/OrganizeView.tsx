@@ -95,7 +95,7 @@ export function OrganizeView({ dirPath, onOrganized }: OrganizeViewProps) {
                 </div>
                 {items.map((item) => (
                   <div key={item.src} className="flex items-center gap-3 border-b border-slate-100 px-4 py-2 text-xs last:border-b-0">
-                    <img src={toImageUrl(item.src)} alt={item.name} className="size-10 shrink-0 rounded-[5px] object-cover" />
+                    <img src={toImageUrl(item.src)} alt={item.name} className="size-10 shrink-0 overflow-hidden rounded-[5px] bg-slate-100 object-cover text-[0px]" />
                     <span className="shrink-0 text-sm text-slate-300">→</span>
                     <span className="truncate text-slate-500">{item.destPath}</span>
                   </div>

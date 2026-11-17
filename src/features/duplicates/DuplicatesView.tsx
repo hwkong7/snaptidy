@@ -102,7 +102,7 @@ function DuplicateRow({ file, marked, onToggle }: { file: ImageFile; marked: boo
         marked ? "bg-red-50" : "hover:bg-slate-50"
       }`}
     >
-      <img src={toImageUrl(file.path)} alt={file.name} className="size-14 shrink-0 rounded-md object-cover" />
+      <img src={toImageUrl(file.path)} alt={file.name} className="size-14 shrink-0 overflow-hidden rounded-md bg-slate-100 object-cover text-[0px]" />
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-medium">{file.name}</div>
         <div className="mt-0.5 text-xs text-slate-400">

@@ -20,7 +20,7 @@ export function SelectionBar({ checkedPhotos, onCopy, onDelete, onUncheck }: Sel
       <div className="flex items-center gap-1.5 overflow-hidden">
         {checkedPhotos.slice(0, MAX_PREVIEW).map((p) => (
           <div key={p.id} className="relative shrink-0">
-            <img src={p.url} alt={p.name} className="size-12 rounded-[7px] border border-slate-200 object-cover" />
+            <img src={p.url} alt={p.name} className="size-12 overflow-hidden rounded-[7px] border border-slate-200 bg-slate-100 object-cover text-[0px]" />
             <button
               type="button"
               aria-label={`${p.name} 선택 해제`}
