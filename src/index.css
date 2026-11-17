@@ -1,87 +1,35 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import "tailwindcss";
+@import "pretendard/dist/web/variable/pretendardvariable.css";
+
+@theme {
+  --font-sans: "Pretendard Variable", -apple-system, "Segoe UI", sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
+  body {
+    @apply bg-slate-50 font-sans text-slate-900 antialiased;
+  }
 
-.modal {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-}
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 
-.modal-actions {
-  margin-top: 15px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-/* 전체 페이지 */
-.home-page {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header 아래 영역 */
-.content-layout {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  /* 오른쪽 고정 */
-  overflow: hidden;
-}
-
-/* 왼쪽 사진 영역 */
-.grid-area {
-  overflow-y: auto;
-}
-
-/* 오른쪽 미리보기 영역 */
-.preview-area {
-  border-left: 1px solid #e5e5e5;
-  background: #ffffff;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 12px;
-}
-
-/* 미리보기 이미지 */
-.preview-area img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-/* 미리보기 없을 때 */
-.preview-empty {
-  color: #aaa;
-  font-size: 14px;
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-200;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-300;
+  }
 }
