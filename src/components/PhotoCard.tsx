@@ -24,6 +24,7 @@ export const PhotoCard = memo(function PhotoCard({ photo, isFocused, isChecked, 
         <img
           src={photo.url}
           alt={photo.name}
+          loading="lazy"
           draggable={false}
           className={`block size-full object-cover text-[0px] transition-opacity ${isChecked ? "opacity-75" : ""}`}
         />
