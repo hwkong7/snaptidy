@@ -15,11 +15,9 @@ const VIEW_DUPLICATES = "duplicates";
 const VIEW_ORGANIZE = "organize";
 
 // ── 유틸 ──────────────────────────────────────────────
-const toFileURL = (filePath) => {
-  const normalized = filePath.replace(/\\/g, "/");
-  const parts = normalized.split("/").map(encodeURIComponent);
-  return `file:///${parts.join("/")}`;
-};
+// 로컬 이미지는 main 프로세스의 snaptidy:// 프로토콜로 불러온다.
+const toFileURL = (filePath) =>
+  `snaptidy://local/${encodeURIComponent(filePath)}`;
 
 const formatSize = (bytes) => {
   if (!bytes) return "—";

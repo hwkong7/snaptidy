@@ -1,5 +1,6 @@
 const process = require("process");
-const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell, protocol, net } = require("electron");
+const { pathToFileURL } = require("url");
 const path = require("path");
 const fs = require("fs").promises;
 const fsCb = require("fs");
@@ -8,6 +9,27 @@ const crypto = require("crypto");
 
 const isDev = !app.isPackaged;
 
+// ── 로컬 이미지 전용 프로토콜 (snaptidy://local/<인코딩된 경로>) ──
+// file:// 를 직접 쓰지 않고 이 프로토콜로 이미지만 읽게 해서 webSecurity 를 켜 둘 수 있다.
+protocol.registerSchemesAsPrivileged([
+  { scheme: "snaptidy", privileges: { standard: true, secure: true, supportFetchAPI: true } }
+]);
+
+function registerImageProtocol() {
+  protocol.handle("snaptidy", (request) => {
+    try {
+      const { pathname } = new URL(request.url);
+      const filePath = decodeURIComponent(pathname.slice(1));
+      if (!path.isAbsolute(filePath) || !isImage(filePath)) {
+        return new Response("Forbidden", { status: 403 });
+      }
+      return net.fetch(pathToFileURL(filePath).toString());
+    } catch {
+      return new Response("Bad Request", { status: 400 });
+    }
+  });
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1440,
@@ -15,15 +37,12 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false,
-      webSecurity: false,
-      allowRunningInsecureContent: true
+      nodeIntegration: false
     }
   });
 
   if (isDev) {
     win.loadURL("http://localhost:3000");
-    win.webContents.openDevTools();
   } else {
     const indexPath = path.resolve(__dirname, "..", "build", "index.html");
     win.loadFile(indexPath);
@@ -31,6 +50,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  registerImageProtocol();
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
