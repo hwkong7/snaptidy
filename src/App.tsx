@@ -45,8 +45,8 @@ export default function App() {
     if (!checkedPhotos.length) return;
     const target = await window.electronAPI.chooseFolder();
     if (!target) return;
-    await window.electronAPI.copyFiles(checkedPhotos.map((p) => p.path), target);
-    alert("복사 완료!");
+    const ok = await window.electronAPI.copyFiles(checkedPhotos.map((p) => p.path), target);
+    alert(ok ? "복사 완료!" : "복사 중 오류가 발생했습니다.");
   };
 
   const choosePath = async () => {
