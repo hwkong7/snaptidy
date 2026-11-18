@@ -3,6 +3,10 @@ productName: SnapTidy
 directories:
   output: dist
   buildResources: resources
+# 앱 화면이 한국어라 Chromium 언어 파일은 한국어와 영어(기본값)만 넣는다.
+electronLanguages:
+  - ko
+  - en-US
 files:
   - out/**/*
   - package.json
