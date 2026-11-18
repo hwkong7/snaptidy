@@ -1,0 +1,11 @@
+# electron-builder가 의존하는 @electron/node-gyp는 git 저장소에서 받는다.
+blockExoticSubdeps: false
+
+# 설치 스크립트 실행 여부
+allowBuilds:
+  # Electron 바이너리 다운로드
+  electron: true
+  # esbuild 네이티브 바이너리
+  esbuild: true
+  # Squirrel 설치 방식용이라 쓰지 않는다 (설치 파일은 NSIS)
+  electron-winstaller: false
