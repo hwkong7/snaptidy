@@ -10,9 +10,9 @@
 
 ## 테스트
 
-- [ ] `npm run typecheck`
-- [ ] `npm run build`
-- [ ] `npm start`로 변경된 화면·기능 직접 확인
+- [ ] `pnpm run typecheck`
+- [ ] `pnpm run build`
+- [ ] `pnpm start`로 변경된 화면·기능 직접 확인
 
 ## 참고
 
