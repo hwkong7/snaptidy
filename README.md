@@ -17,20 +17,36 @@ SnapTidy는 내 컴퓨터에 쌓인 사진을 빠르게 훑어보고, 중복을 
 
 ## 실행 방법
 
+패키지 매니저는 [pnpm](https://pnpm.io)을 씁니다. 설치되어 있지 않다면 `npm install -g pnpm`으로 설치하세요.
+
 ```bash
-npm install     # 의존성 설치
-npm start       # 개발 모드로 앱 실행 (코드를 고치면 바로 반영)
+pnpm install    # 의존성 설치
+pnpm start      # 개발 모드로 앱 실행 (코드를 고치면 바로 반영)
 ```
 
 | 명령어 | 설명 |
 |---|---|
-| `npm start` / `npm run dev` | 개발 모드로 실행 |
-| `npm run typecheck` | TypeScript 타입 검사 |
-| `npm run build` | `out/` 폴더에 빌드 |
-| `npm run preview` | 빌드 결과를 앱으로 실행 |
-| `npm run dist` | Windows 설치 파일 생성 → `dist/SnapTidy Setup x.y.z.exe` |
+| `pnpm start` / `pnpm dev` | 개발 모드로 실행 |
+| `pnpm run typecheck` | TypeScript 타입 검사 |
+| `pnpm run build` | `out/` 폴더에 빌드 |
+| `pnpm run preview` | 빌드 결과를 앱으로 실행 |
+| `pnpm run dist` | Windows 설치 파일 생성 → `dist/SnapTidy Setup x.y.z.exe` |
 
 > VS Code 터미널 등에서 `ELECTRON_RUN_AS_NODE=1` 환경변수가 설정돼 있으면 Electron이 Node처럼 실행돼 앱이 뜨지 않습니다. 이럴 때는 이 변수를 지우고 실행하세요.
+
+## 브랜치와 배포
+
+- 작업은 `feature/*`, `fix/*`, `refactor/*`, `chore/*` 브랜치에서 하고 `develop`으로 PR을 올립니다. `main`에는 `develop`이 안정되었을 때만 반영합니다.
+- PR을 올리면 GitHub Actions가 타입 검사와 빌드를 자동으로 확인합니다 (`.github/workflows/ci.yml`).
+- 새 버전을 배포할 때는 `package.json`의 `version`을 올린 뒤 같은 이름의 태그를 푸시합니다.
+
+  ```bash
+  git tag v0.2.0
+  git push origin v0.2.0
+  ```
+
+  Windows 설치 파일이 빌드되어 [Releases](../../releases)에 자동으로 올라갑니다 (`.github/workflows/release.yml`).
+- 코드 서명을 하지 않은 설치 파일이라 처음 실행할 때 Windows SmartScreen 경고가 나올 수 있습니다. "추가 정보 → 실행"을 누르면 설치됩니다.
 
 ## 프로젝트 구조
 ```text

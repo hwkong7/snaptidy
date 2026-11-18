@@ -1,0 +1,43 @@
+name: 버그 제보
+description: 앱이 예상과 다르게 동작할 때 작성합니다.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 현상
+      description: 어떤 문제가 발생했는지 설명해 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      placeholder: |
+        1. '다운로드' 폴더를 연다
+        2. '중복 찾기' 탭에서 '지금 스캔'을 누른다
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 동작
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 앱 버전
+      placeholder: "예: 0.2.0"
+  - type: input
+    id: os
+    attributes:
+      label: 운영체제
+      placeholder: "예: Windows 11 23H2"
+  - type: textarea
+    id: extra
+    attributes:
+      label: 스크린샷 / 로그
+      description: 화면 캡처나 개발자도구(Ctrl+Shift+I) 콘솔 오류가 있으면 첨부해 주세요.
